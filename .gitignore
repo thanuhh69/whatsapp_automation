@@ -1,0 +1,25 @@
+# Sensitive credentials & keys
+credentials/
+*.json
+.env
+
+# Database & SQLite files
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# Logs
+logs/
+
+# Python cache & virtualenv
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+.pytest_cache/
+
+# System / OS files
+.DS_Store
+Thumbs.db

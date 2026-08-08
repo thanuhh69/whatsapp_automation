@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q9X WhatsApp Automation</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Remix Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="logo-icon"><i class="ri-whatsapp-line"></i></div>
+        <div class="logo-text">
+          <h2>Q9X Automation</h2>
+          <span class="sub-logo">WhatsApp Engine</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="dashboard-view" id="nav-dashboard">
+          <i class="ri-dashboard-3-line"></i> <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-tab="recipients-view" id="nav-recipients">
+          <i class="ri-contacts-book-line"></i> <span>Recipients</span>
+        </button>
+        <button class="nav-item" data-tab="templates-view" id="nav-templates">
+          <i class="ri-draft-line"></i> <span>Composer & Templates</span>
+        </button>
+        <button class="nav-item" data-tab="campaigns-view" id="nav-campaigns">
+          <i class="ri-send-plane-fill"></i> <span>Campaigns</span>
+        </button>
+        <button class="nav-item" data-tab="whatsapp-view" id="nav-whatsapp">
+          <i class="ri-qr-code-line"></i> <span>WhatsApp Connection</span>
+        </button>
+        <button class="nav-item" data-tab="optouts-view" id="nav-optouts">
+          <i class="ri-user-unfollow-line"></i> <span>Opt-Out List</span>
+        </button>
+        <button class="nav-item" data-tab="settings-view" id="nav-settings">
+          <i class="ri-settings-4-line"></i> <span>Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-badge" id="test-mode-badge">
+          <span class="pulse-dot warning"></span>
+          <span class="badge-text">TEST MODE ENABLED</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="header-title">
+          <h1 id="page-title">Dashboard Overview</h1>
+          <p id="page-subtitle">Real-time status of Q9X WhatsApp communication pipeline</p>
+        </div>
+
+        <div class="header-actions">
+          <div class="wa-status-pill" id="header-wa-status">
+            <span class="status-dot disconnected"></span>
+            <span class="status-label">WhatsApp: Offline</span>
+          </div>
+          <button class="btn btn-secondary" id="header-token-btn">
+            <i class="ri-key-2-line"></i> Set API Token
+          </button>
+          <button class="btn btn-primary" id="quick-sync-btn">
+            <i class="ri-refresh-line"></i> Sync Sheet
+          </button>
+        </div>
+      </header>
+
+      <!-- Toast Notification Container -->
+      <div id="toast-container" class="toast-container"></div>
+
+      <!-- View Sections -->
+
+      <!-- 1. DASHBOARD VIEW -->
+      <section id="dashboard-view" class="view-section active">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon icon-blue"><i class="ri-group-line"></i></div>
+            <div class="kpi-data">
+              <span class="kpi-label">Total Recipients</span>
+              <h3 class="kpi-value" id="kpi-total-registrants">0</h3>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon icon-green"><i class="ri-user-check-line"></i></div>
+            <div class="kpi-data">
+              <span class="kpi-label">Eligible Recipients</span>
+              <h3 class="kpi-value" id="kpi-eligible-recipients">0</h3>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon icon-purple"><i class="ri-send-plane-line"></i></div>
+            <div class="kpi-data">
+              <span class="kpi-label">Total Campaigns</span>
+              <h3 class="kpi-value" id="kpi-total-campaigns">0</h3>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon icon-red"><i class="ri-user-forbid-line"></i></div>
+            <div class="kpi-data">
+              <span class="kpi-label">Opt-Out Count</span>
+              <h3 class="kpi-value" id="kpi-opt-out-count">0</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-widgets grid-2col">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="ri-rocket-line"></i> Quick Launch</h3>
+            </div>
+            <div class="card-body quick-actions" style="display: flex; flex-direction: column; gap: 0.85rem;">
+              <button class="btn btn-outline full-width" id="dash-btn-connect-wa">
+                <i class="ri-qr-code-line"></i> Open WhatsApp Web Login
+              </button>
+
+              <button class="btn btn-primary full-width" id="dash-btn-new-campaign">
+                <i class="ri-add-line"></i> Create New Campaign
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="ri-shield-keyhole-line"></i> API Bearer Token</h3>
+            </div>
+            <div class="card-body">
+              <p class="text-muted" style="margin-bottom: 0.75rem;">Mutating operations require your local Bearer Token:</p>
+              <div class="token-box" style="display: flex; gap: 0.5rem;">
+                <input type="password" id="auth-token-input" class="form-control" placeholder="Enter Bearer Token">
+                <button class="btn btn-secondary" id="save-token-btn">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. RECIPIENTS VIEW -->
+      <section id="recipients-view" class="view-section">
+        <div class="card" style="padding: 0.85rem 1.25rem; margin-bottom: 1.25rem; background: #e8f0fe; border-color: #aecbfa;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.825rem; color: #174ea6;">
+            <i class="ri-information-line" style="font-size: 1.1rem;"></i>
+            <span><strong>Google Sheet Source of Truth:</strong> Syncing imports recipients directly from your configured Google Sheet. Deactivating local records does not modify your Google Sheet.</span>
+          </div>
+        </div>
+
+        <div class="table-controls flex-between margin-bottom">
+          <div class="search-box" style="display: flex; align-items: center; background: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0 0.75rem; width: 300px;">
+            <i class="ri-search-line" style="color: var(--text-muted);"></i>
+            <input type="text" id="recipient-search-input" class="form-control" style="border: none; box-shadow: none;" placeholder="Search by name, phone, email...">
+          </div>
+
+          <div class="filter-box flex-gap">
+            <select id="recipient-status-filter" class="form-select">
+              <option value="">All Statuses</option>
+              <option value="eligible" selected>Eligible Only</option>
+              <option value="opted_out">Opted Out Only</option>
+              <option value="deactivated">Deactivated Only</option>
+            </select>
+
+            <button class="btn btn-secondary" id="recipients-replace-sync-btn">
+              <i class="ri-refresh-line"></i> Replace Local from Sheet
+            </button>
+
+            <button class="btn btn-primary" id="recipients-sync-btn">
+              <i class="ri-google-fill"></i> Sync Google Sheet
+            </button>
+          </div>
+        </div>
+
+        <div class="card table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Normalized Phone</th>
+                <th>Raw Phone</th>
+                <th>Email</th>
+                <th>Consent</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recipients-table-body">
+              <!-- Dynamically rendered rows -->
+            </tbody>
+          </table>
+
+          <div class="pagination-footer flex-between" style="padding: 1rem 1.25rem;">
+            <span id="recipients-pagination-info" class="text-muted">Showing 0 of 0</span>
+            <div class="pagination-buttons flex-gap">
+              <button class="btn btn-sm btn-outline" id="recipients-prev-btn"><i class="ri-arrow-left-s-line"></i> Prev</button>
+              <button class="btn btn-sm btn-outline" id="recipients-next-btn">Next <i class="ri-arrow-right-s-line"></i></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. TEMPLATES & COMPOSER VIEW -->
+      <section id="templates-view" class="view-section">
+        <div class="grid-2col">
+          <!-- Template Selector & Editor -->
+          <div class="card">
+            <div class="card-header flex-between">
+              <h3><i class="ri-file-text-line"></i> Message Template Editor</h3>
+              <button class="btn btn-sm btn-outline" id="new-template-btn"><i class="ri-add-line"></i> New Template</button>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Select Saved Template</label>
+                <select id="template-select" class="form-select"></select>
+              </div>
+
+              <div class="form-group">
+                <label>Template Name</label>
+                <input type="text" id="template-name-input" class="form-control" placeholder="e.g. Webinar Reminder">
+              </div>
+
+              <div class="form-group">
+                <label>Insert Variables</label>
+                <div class="variable-pills" style="display: flex; gap: 0.5rem; margin-top: 0.35rem;">
+                  <button type="button" class="pill-btn" data-var="{{name}}"><i class="ri-user-line"></i> {{name}}</button>
+                  <button type="button" class="pill-btn" data-var="{{phone}}"><i class="ri-phone-line"></i> {{phone}}</button>
+                  <button type="button" class="pill-btn" data-var="{{email}}"><i class="ri-mail-line"></i> {{email}}</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Message Content</label>
+                <textarea id="template-content-input" class="form-textarea" rows="6" placeholder="Type your WhatsApp message template here..."></textarea>
+              </div>
+
+              <div class="flex-actions flex-gap">
+                <button class="btn btn-primary" id="save-template-btn"><i class="ri-save-line"></i> Save Template</button>
+                <button class="btn btn-danger" id="delete-template-btn"><i class="ri-delete-bin-line"></i> Delete</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Preview -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="ri-eye-line"></i> WhatsApp Live Preview</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Sample Recipient</label>
+                <select id="preview-recipient-select" class="form-select">
+                  <option value="">(Select a real recipient to preview)</option>
+                </select>
+              </div>
+
+              <div class="whatsapp-mock-chat">
+                <div class="chat-header">
+                  <div class="chat-avatar"><i class="ri-user-3-fill"></i></div>
+                  <div class="chat-info">
+                    <span class="chat-name" id="preview-name-display">Recipient Name</span>
+                    <span class="chat-sub">Online</span>
+                  </div>
+                </div>
+                <div class="chat-body">
+                  <div class="message-bubble outgoing">
+                    <div class="message-text" id="preview-message-text">Your preview message will appear here...</div>
+                    <div class="message-meta">
+                      <span class="message-time">12:00 PM</span>
+                      <i class="ri-check-double-line wa-check"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button class="btn btn-accent full-width" id="create-campaign-from-composer">
+                <i class="ri-send-plane-2-line"></i> Use Template in New Campaign
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. CAMPAIGNS VIEW -->
+      <section id="campaigns-view" class="view-section">
+        <div class="flex-between margin-bottom">
+          <h2>Communication Campaigns</h2>
+          <div class="flex-gap">
+            <button class="btn btn-danger" id="bulk-delete-campaigns-btn" style="display: none;">
+              <i class="ri-delete-bin-line"></i> Delete Selected (<span id="selected-campaign-count">0</span>)
+            </button>
+            <button class="btn btn-primary" id="open-create-campaign-modal">
+              <i class="ri-add-circle-line"></i> Create New Campaign
+            </button>
+          </div>
+        </div>
+
+        <div class="card table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;"><input type="checkbox" id="select-all-campaigns-checkbox"></th>
+                <th>ID</th>
+                <th>Campaign Name</th>
+                <th>Status</th>
+                <th>Mode</th>
+                <th>Recipients</th>
+                <th>Sent / Failed</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="campaigns-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Selected Campaign Detailed Monitor -->
+        <div class="card margin-top" id="campaign-detail-card" style="display: none;">
+          <div class="card-header flex-between">
+            <div>
+              <h3 id="cd-title">Campaign Details</h3>
+              <span class="text-muted" id="cd-status">Status: DRAFT</span>
+            </div>
+            <div class="flex-gap">
+              <button class="btn btn-success" id="cd-start-btn"><i class="ri-play-fill"></i> Start Send</button>
+              <button class="btn btn-outline" id="cd-retry-failed-btn"><i class="ri-refresh-line"></i> Retry Failed</button>
+              <button class="btn btn-danger" id="cd-stop-btn"><i class="ri-stop-fill"></i> Stop Campaign</button>
+              <button class="btn btn-danger" id="cd-delete-btn"><i class="ri-delete-bin-line"></i> Delete Campaign</button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="cd-progress-bar" style="width: 0%;"></div>
+            </div>
+            <div class="progress-stats flex-between margin-bottom">
+              <span id="cd-progress-text">0 / 0 Processed</span>
+              <span id="cd-sent-failed-text">Sent: 0 | Failed: 0 | Skipped: 0</span>
+            </div>
+
+            <h4>Recipient Message Logs</h4>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Recipient</th>
+                  <th>Phone</th>
+                  <th>Rendered Message</th>
+                  <th>Status</th>
+                  <th>Sent At / Error</th>
+                </tr>
+              </thead>
+              <tbody id="cd-messages-table-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. WHATSAPP CONNECTION VIEW -->
+      <section id="whatsapp-view" class="view-section">
+        <div class="grid-2col">
+          <!-- WhatsApp Session Status -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="ri-qr-code-line"></i> WhatsApp Web Session</h3>
+            </div>
+            <div class="card-body">
+              <div class="wa-status-box" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f8f9fa; border-radius: var(--radius-md); margin-bottom: 1.25rem;">
+                <div class="status-indicator-circle" id="wa-large-status-circle" style="width: 16px; height: 16px; border-radius: 50%; background: var(--accent-red);"></div>
+                <div class="status-details">
+                  <h3 id="wa-large-status-text" style="font-size: 1.1rem; font-weight: 700;">Disconnected</h3>
+                  <p class="text-muted">Playwright Chromium browser session state</p>
+                </div>
+              </div>
+
+              <div class="action-row flex-gap" style="flex-wrap: wrap;">
+                <button class="btn btn-primary" id="wa-connect-btn">
+                  <i class="ri-qr-code-line"></i> Connect WhatsApp
+                </button>
+
+                <button class="btn btn-danger" id="wa-disconnect-btn">
+                  <i class="ri-shut-down-line"></i> Disconnect
+                </button>
+
+                <button class="btn btn-secondary" id="wa-check-status-btn">
+                  <i class="ri-refresh-line"></i> Check Status
+                </button>
+              </div>
+
+              <div class="alert alert-info margin-top" style="padding: 0.85rem 1rem; background: #e8f0fe; border: 1px solid #aecbfa; border-radius: var(--radius-md); font-size: 0.825rem; color: #174ea6;">
+                <p><strong>Session Persistence:</strong> Clicking "Connect WhatsApp" opens Google Chrome navigating to <code>https://web.whatsapp.com</code>. Scan the QR code once with your WhatsApp phone app. Session cookies persist in <code>data/whatsapp-profile/</code>.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- REAL WHATSAPP TEST BOX -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="ri-flask-line"></i> Real WhatsApp Test</h3>
+            </div>
+            <div class="card-body">
+              <p class="text-muted" style="margin-bottom: 1rem;">Sends 1 actual test message to an explicit test phone number over your active WhatsApp Web session to verify real delivery.</p>
+
+              <div class="form-group">
+                <label>Test Mobile Number</label>
+                <input type="text" id="test-wa-phone" class="form-control" placeholder="e.g. +918019234832">
+              </div>
+
+              <div class="form-group">
+                <label>Test Message</label>
+                <textarea id="test-wa-message" class="form-textarea" rows="3" placeholder="Hello! This is a Q9X WhatsApp automation real test message."></textarea>
+              </div>
+
+              <button class="btn btn-success full-width" id="send-real-test-wa-btn">
+                <i class="ri-send-plane-fill"></i> SEND TEST MESSAGE
+              </button>
+
+              <div id="test-wa-status-box" style="display: none; margin-top: 1.25rem; padding: 1rem; background: #f8f9fa; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                <h4 style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">Diagnostic Delivery Status</h4>
+                <ul id="test-wa-steps-list" style="font-size: 0.8rem; padding-left: 1.2rem; color: var(--text-muted);">
+                  <!-- Dynamic diagnostic steps -->
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. OPT-OUTS VIEW -->
+      <section id="optouts-view" class="view-section">
+        <div class="grid-2col">
+          <!-- Add Manual Opt-Out -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="ri-user-unfollow-line"></i> Manual Opt-Out Entry</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Mobile Number</label>
+                <input type="text" id="optout-phone-input" class="form-control" placeholder="e.g. 9876543210 or +919876543210">
+              </div>
+
+              <div class="form-group">
+                <label>Reason</label>
+                <input type="text" id="optout-reason-input" class="form-control" placeholder="e.g. Requested via email">
+              </div>
+
+              <button class="btn btn-danger" id="add-optout-btn">
+                <i class="ri-add-line"></i> Add to Opt-Out List
+              </button>
+            </div>
+          </div>
+
+          <!-- Opt-Out Records Table -->
+          <div class="card">
+            <div class="card-header">
+              <h3>Opt-Out Directory</h3>
+            </div>
+            <div class="card-body">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Phone</th>
+                    <th>Source</th>
+                    <th>Reason</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="optouts-table-body">
+                  <!-- Dynamically rendered -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. SETTINGS VIEW -->
+      <section id="settings-view" class="view-section">
+        <div class="card">
+          <div class="card-header flex-between">
+            <h3><i class="ri-settings-4-line"></i> Google Sheets & System Controls</h3>
+            <div class="flex-gap">
+              <button class="btn btn-secondary" type="button" id="cfg-test-connection-btn"><i class="ri-links-line"></i> Test Connection</button>
+              <button class="btn btn-primary" type="button" id="cfg-fetch-headers-btn"><i class="ri-list-check-2"></i> Fetch Headers</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <form id="settings-form">
+              <div class="grid-2col">
+                <div class="form-group">
+                  <label>Google Sheet ID / URL</label>
+                  <input type="text" id="cfg-sheet-id" class="form-control" placeholder="Paste full URL or Spreadsheet ID">
+                </div>
+
+                <div class="form-group">
+                  <label>Worksheet Tab Name</label>
+                  <input type="text" id="cfg-worksheet-name" class="form-control" placeholder="e.g. Form Responses 1">
+                </div>
+              </div>
+
+              <h4 style="font-size: 0.9rem; margin: 1rem 0 0.75rem 0;">Dynamic Column Mapping</h4>
+              <div class="grid-2col" style="background: #f8f9fa; padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.25rem;">
+                <div class="form-group">
+                  <label>Name Column</label>
+                  <select id="cfg-map-name" class="form-select"></select>
+                </div>
+
+                <div class="form-group">
+                  <label>Mobile / Phone Column</label>
+                  <select id="cfg-map-phone" class="form-select"></select>
+                </div>
+
+                <div class="form-group">
+                  <label>Email Column</label>
+                  <select id="cfg-map-email" class="form-select"></select>
+                </div>
+
+                <div class="form-group">
+                  <label>WhatsApp Consent Column</label>
+                  <select id="cfg-map-consent" class="form-select"></select>
+                </div>
+              </div>
+
+              <div class="grid-2col">
+                <div class="form-group">
+                  <label>Min Send Delay (seconds)</label>
+                  <input type="number" id="cfg-min-delay" class="form-control" min="1" max="60">
+                </div>
+
+                <div class="form-group">
+                  <label>Max Send Delay (seconds)</label>
+                  <input type="number" id="cfg-max-delay" class="form-control" min="1" max="120">
+                </div>
+
+                <div class="form-group">
+                  <label>Opt-Out Keywords (comma separated)</label>
+                  <input type="text" id="cfg-optout-keywords" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <label>Inbox Poll Interval (seconds)</label>
+                  <input type="number" id="cfg-poll-interval" class="form-control" min="10" max="600">
+                </div>
+              </div>
+
+              <div class="form-group checkbox-group margin-top">
+                <label>
+                  <input type="checkbox" id="cfg-test-mode">
+                  <strong>Enable Global Test Mode</strong> (Simulates sends without real WhatsApp Web messages)
+                </label>
+              </div>
+
+              <div class="flex-between margin-top">
+                <button type="submit" class="btn btn-primary"><i class="ri-save-line"></i> Save Settings</button>
+                <button type="button" class="btn btn-danger" id="delete-credentials-btn"><i class="ri-delete-bin-line"></i> Delete Credentials & Reset Sheet</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- ADMIN MAINTENANCE / DATABASE RESET SECTION -->
+        <div class="card margin-top" style="border-color: #fce8e6;">
+          <div class="card-header">
+            <h3 style="color: var(--accent-red);"><i class="ri-shield-flash-line"></i> Admin Maintenance & Local Reset</h3>
+          </div>
+          <div class="card-body">
+            <p class="text-muted" style="margin-bottom: 1rem;">Resetting local data permanently clears local SQLite database records. <strong>Your Google Sheet will never be modified or deleted.</strong></p>
+            
+            <div class="flex-gap" style="flex-wrap: wrap;">
+              <button class="btn btn-danger" id="admin-reset-recipients-btn">
+                <i class="ri-delete-bin-3-line"></i> Clear Local Recipients
+              </button>
+
+              <button class="btn btn-danger" id="admin-reset-campaigns-btn">
+                <i class="ri-delete-bin-3-line"></i> Clear Campaign History
+              </button>
+
+              <button class="btn btn-danger" id="admin-reset-messages-btn">
+                <i class="ri-delete-bin-3-line"></i> Clear Message Delivery Logs
+              </button>
+
+              <button class="btn btn-danger" id="admin-reset-full-btn" style="background: #a50e0e;">
+                <i class="ri-alarm-warning-line"></i> Reset Full Local Database
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Create Campaign Modal -->
+  <div class="modal" id="campaign-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Create New Campaign</h3>
+        <button class="modal-close" id="close-campaign-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Campaign Name</label>
+          <input type="text" id="modal-campaign-name" class="form-control" placeholder="e.g. Cyber Security Webinar Reminder">
+        </div>
+
+        <div class="form-group">
+          <label>Message Template</label>
+          <select id="modal-campaign-template-select" class="form-select"></select>
+        </div>
+
+        <div class="form-group">
+          <label>Message Content Template</label>
+          <textarea id="modal-campaign-template-text" class="form-textarea" rows="4"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Target Recipients</label>
+          <div style="margin-bottom: 0.5rem;">
+            <label style="margin-right: 1rem;"><input type="radio" name="recipient-target-mode" value="all" checked> Send to All Eligible (<span id="modal-eligible-count">0</span>)</label>
+            <label><input type="radio" name="recipient-target-mode" value="select"> Select Specific Recipients</label>
+          </div>
+          <div id="modal-recipient-picker" style="display: none; max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: var(--radius-md);">
+            <!-- Dynamic checkboxes -->
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" id="modal-campaign-testmode" checked>
+            Run in Test Mode (Simulation)
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer flex-end">
+        <button class="btn btn-secondary" id="cancel-campaign-modal">Cancel</button>
+        <button class="btn btn-primary" id="confirm-create-campaign-btn">Create Campaign</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Dependencies -->
+  <script src="/static/js/app.js?v=7"></script>
+  <script src="/static/js/dashboard.js?v=7"></script>
+  <script src="/static/js/recipients.js?v=7"></script>
+  <script src="/static/js/templates.js?v=7"></script>
+  <script src="/static/js/campaigns.js?v=7"></script>
+  <script src="/static/js/whatsapp.js?v=7"></script>
+  <script src="/static/js/opt_outs.js?v=7"></script>
+</body>
+</html>
